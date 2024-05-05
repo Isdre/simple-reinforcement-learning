@@ -1,16 +1,29 @@
-# This is a sample Python script.
+from tictactoe import *
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import itertools
+import re
 
+# def check_if_win(c:str) -> bool:
+#     x = "XXX"
+#     o = "OOO"
+#     lines = []
+#     lines.append(c[0:3])
+#     lines.append(c[3:6])
+#     lines.append(c[6:])
+#     lines.append(c[0::4])
+#     lines.append(c[2]+c[4]+c[8])
+#     lines.append(c[0::3])
+#     lines.append(c[1::3])
+#     lines.append(c[2::3])
+#     for l in lines:
+#         if l == x or l == o: return True
+#
+#     return False
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    # with open("tictactoe-bot-data.txt","w") as file:
+    #     combinations = [''.join(x) for x in itertools.product('_XO', repeat=9)]
+    #     for c in combinations:
+    #         if check_if_win(c): continue
+    #         file.write(c + " " + "0\n")
+    game = Game(True)
