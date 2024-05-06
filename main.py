@@ -3,7 +3,9 @@ from tictactoe import *
 import itertools
 import re
 
-# def check_if_win(c:str) -> bool:
+
+# do tworzenia pierwszej instancji bota
+# def check_if_save(c: str) -> bool:
 #     x = "XXX"
 #     o = "OOO"
 #     lines = []
@@ -11,19 +13,21 @@ import re
 #     lines.append(c[3:6])
 #     lines.append(c[6:])
 #     lines.append(c[0::4])
-#     lines.append(c[2]+c[4]+c[8])
+#     lines.append(c[2] + c[4] + c[8])
 #     lines.append(c[0::3])
 #     lines.append(c[1::3])
 #     lines.append(c[2::3])
-#     for l in lines:
-#         if l == x or l == o: return True
+#
+#     if x not in lines and o not in lines and abs(c.count("X") - c.count("O")) < 2: return True
 #
 #     return False
 
+
 if __name__ == "__main__":
-    # with open("tictactoe-bot-data.txt","w") as file:
+    # with open("all_input_field_states.txt", "w") as file:
     #     combinations = [''.join(x) for x in itertools.product('_XO', repeat=9)]
     #     for c in combinations:
-    #         if check_if_win(c): continue
-    #         file.write(c + " " + "0\n")
+    #         if not check_if_save(c): continue
+    #
+    #         file.write(c + "\n")
     game = Game(True)
