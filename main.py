@@ -30,4 +30,4 @@ if __name__ == "__main__":
     #         if not check_if_save(c): continue
     #
     #         file.write(c + "\n")
-    game = Game(True)
+    game = Game(True,False)

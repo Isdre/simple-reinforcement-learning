@@ -2,14 +2,14 @@ import os
 import numpy as np
 
 class Game:
-    def __init__(self,player_start:bool):
+    def __init__(self,player_start:bool,player_play:bool):
         self.running = True
         self.draw = False
         self.field = [["_","_","_"],["_","_","_"],["_","_","_"]]
         self.player = player_start
-
-        self.bot = Bot()
-
+        self.player_play = player_play
+        self.bot1 = Bot("O")
+        self.bot2 = Bot("X")
         print(f"Welcome!")
         print("".join(self.field[0] + self.field[1] + self.field[2]))
         if self.player:
@@ -26,19 +26,32 @@ class Game:
     def run_game(self):
         while self.running:
             if self.player:
-                print("Your move (\"y x\"): ", end="")
-                m = input().split()
-                if len(m) > 2 or (int(m[0]) > 2 or int(m[0]) < 0) or (int(m[1]) > 2 or int(m[1]) < 0): continue
-                self.turn += 1
-                self.move(int(m[0]), int(m[1]))
+                if self.player_play:
+                    print("Your move (\"y x\"): ", end="")
+                    m = input().split()
+                    if len(m) > 2 or (int(m[0]) > 2 or int(m[0]) < 0) or (int(m[1]) > 2 or int(m[1]) < 0): continue
+                    self.turn += 1
+                    self.move(int(m[0]), int(m[1]))
+                else:
+                    m = self.bot1.predict(self.field)
+                    self.move(m // 3, m % 3)
             else:
-                m = self.bot.predict(self.field)
+                m = self.bot2.predict(self.field)
                 self.move(m//3,m%3)
-        z = 0
+        z1 = 0
         if not self.draw:
-            if self.player: z = 1 * self.turn
-            else: z = -1 * (9-self.turn)
-        self.bot.learn(z)
+            if self.player: z1 = 1 * self.turn
+            else: z1 = -1 * (9-self.turn)
+
+        z2 = 0
+        if not self.draw:
+            if not self.player:
+                z2 = 1 * self.turn
+            else:
+                z2 = -1 * (9 - self.turn)
+
+        self.bot2.learn(z2)
+        self.bot1.learn(z1,self.bot2)
         print("GameOver")
 
 
@@ -83,14 +96,22 @@ class Game:
         return False
 
 class Bot:
-    def __init__(self):
+    def __init__(self,sign):
         self.history = []
+        self.sign = sign
         comb = []
         weight = []
         with open("tictactoe-bot-data.txt","r") as file:
             #input output weight
             for line in file:
                 i,o,w = line.split()
+                skip = False
+                for i_c,o_c in zip(i,o):
+                    if i_c != o_c:
+                        if o_c != sign:skip = True
+                        break
+                if skip: continue
+
                 comb.append([i,o])
                 weight.append(float(w))
 
@@ -98,10 +119,9 @@ class Bot:
         if len(comb) == 0:
             with open("all_input_field_states.txt", "r") as file:
                 for line in file.readlines():
-                    if line.count("X") < line.count("O"): continue
                     for i in [ind for ind,ele in enumerate(line) if ele == "_"]:
                         l = list(line)
-                        l[i] = "O"
+                        l[i] = sign
                         comb.append([line.rstrip(),"".join(l).rstrip()])
                         weight.append(0.0)
 
@@ -131,7 +151,7 @@ class Bot:
 
         return move
 
-    def learn(self,z):
+    def learn(self,z,second_bot=None):
         #print(self.history)
 
         matching_indices = np.where(np.all(np.isin(self.combinations, self.history), axis=1))[0]
@@ -139,7 +159,10 @@ class Bot:
 
         self.weights[matching_indices] += z
 
-        with open("tictactoe-bot-data.txt","w") as file:
-            for c,w in zip(self.combinations,self.weights):
-                file.write("".join(c[0]) + " " + "".join(c[1]) + " " + str(w))
-                file.write("\n")
+        if second_bot is not None:
+            self.combinations = np.concatenate((self.combinations, second_bot.combinations), axis=0)
+            self.weights = np.concatenate((self.weights, second_bot.weights), axis=0)
+            with open("tictactoe-bot-data.txt","w") as file:
+                for c,w in zip(self.combinations,self.weights):
+                    file.write("".join(c[0]) + " " + "".join(c[1]) + " " + str(w))
+                    file.write("\n")
